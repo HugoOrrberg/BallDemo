@@ -12,19 +12,17 @@ public class Rectangle extends View {
     private int width, height;
     private int boundX, boundY;
     private double gravityX;
-    private double gravityY;
+    private double gravityY=3;
     private final double bounce;
     private final ShapeDrawable rect;
-
-    private boolean stopGravity = false;
 
     public Rectangle(Context context, int x, int y, int width, int height, int boundX, int boundY, double bounce ){
         super(context);
 
         this.x = x;
         this.y = y;
-        this.dx = 0;
-        this.dy = 0;
+        this.dx = gravityX;
+        this.dy = gravityY;
         this.width = width;
         this.height = height;
 
@@ -51,16 +49,8 @@ public class Rectangle extends View {
         if(collideWithBounds()){
             return;
         }
-        if(!stopGravity){
-            dx += gravityX;
-            dy += gravityY;
-        }else{
-            if(Math.abs(gravityX) > Math.abs(gravityY)){
-                frictionY();
-            }else{
-                frictionX();
-            }
-        }
+        dx += (dx == 0) ? 0 : gravityX;
+        dy += (dy == 0) ? 0 : gravityY;
         x += dx;
         y += dy;
     }
@@ -69,65 +59,29 @@ public class Rectangle extends View {
         boolean collisionOccured = false;
         if((x + dx) > boundX-width){
             x = boundX - width;
-            if(dx < 0.1){
-                dx = 0;
-            }else{
-                dx = -dx*bounce;
-            }
-            frictionY();
+            dx = (dx < gravityX * bounce) ? 0 : -dx*bounce;
             collisionOccured = true;
         }if((x + dx) < 0){
             x = 0;
-            if(dx > -0.1){
-                dx = 0;
-            }else{
-                dx = -dx*bounce;
-            }
-            frictionY();
+            dx = (dx > gravityX * bounce) ? 0 : -dx*bounce;
             collisionOccured = true;
         }if((y + dy) > boundY-height){
             y = boundY-height;
-            if(dy < 0.1){
-                dy = 0;
-                stopGravity = true;
-            }else{
-                dy = -dy*bounce;
-            }
-
-            frictionX();
+            dy = (dy < gravityY * bounce) ? 0 : -dy*bounce;
             collisionOccured = true;
         }if((y + dy) < 0){
             y = 0;
-            dy = -dy*bounce;
-            frictionX();
+            dy = (dy > gravityY * bounce) ? 0 : -dy*bounce;
             collisionOccured = true;
         }
         return collisionOccured;
     }
-
-    public void frictionX(){
-        if(Math.abs(dx) < 0.1){
-            dx = 0;
-        }else{
-            dx = dx*0.97;
-        }
-    }
-
-    public void frictionY(){
-        if(Math.abs(dy) < 0.1){
-            dy = 0;
-        }else{
-            dy = dy*0.97;
-        }
-    }
-
 
     public void throwX(int ddx) {
         dx -= ddx/6;
     }
 
     public void throwY(int ddy) {
-        stopGravity = false;
         dy -= ddy/6;
     }
 
