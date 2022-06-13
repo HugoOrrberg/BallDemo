@@ -19,7 +19,6 @@ public class MainActivity extends Activity{
     private Sensor mRotationSensor;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,17 +41,14 @@ public class MainActivity extends Activity{
             case MotionEvent.ACTION_DOWN:
                 downX = X;
                 downY = Y;
-//                Toast.makeText(this, "ACTION_DOWN AT COORDS "+"X: "+downX+" Y: "+downY, Toast.LENGTH_SHORT).show();
                 gameView.stop();
                 break;
 
             case MotionEvent.ACTION_MOVE:
-//                Toast.makeText(this, "MOVE "+"X: "+X+" Y: "+Y, Toast.LENGTH_SHORT).show();
                 gameView.setLine(downX, downY, X, Y);
                 break;
 
             case MotionEvent.ACTION_UP:
-//                Toast.makeText(this, "ACTION_UP "+"X: "+X+" Y: "+Y, Toast.LENGTH_SHORT).show();
                 gameView.start();
                 gameView.throwShape(downX,downY,X,Y);
                 break;
