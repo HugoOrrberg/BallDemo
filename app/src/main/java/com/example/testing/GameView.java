@@ -23,12 +23,11 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
    private Paint linePaint;
    private int[] line;
-
+   
    private int boundX, boundY;
    private boolean stop = false;
 
    private float[] orientationVectors;
-   private static final int FROM_RADS_TO_DEGS = -57;
 
    public GameView(Context context, WindowManager windowManager) {
       super(context);
@@ -95,21 +94,13 @@ class GameView extends SurfaceView implements SurfaceHolder.Callback {
       SensorManager.remapCoordinateSystem(rotationMatrix, worldAxisX, worldAxisZ, adjustedRotationMatrix);
       float[] orientation = new float[3];
       SensorManager.getOrientation(adjustedRotationMatrix, orientation);
-//      float pitch = orientation[1] * FROM_RADS_TO_DEGS;     //Not used
-      float rollAngle = orientation[2] * FROM_RADS_TO_DEGS;
+//      float pitch = orientation[1];   Not used
+      float rollAngle = orientation[2];
       double x = Math.sin(rollAngle);
       double y = Math.cos(rollAngle);
-      if(Math.abs(x) > Math.abs(y)){
-         rect.setGravityX(-rollAngle/10);
-         rect.setGravityY(0);
-      }else{
-         rect.setGravityY(rollAngle/10);
-         rect.setGravityX(0);
-      }
 
-
-//      rect.setGravityX(-3 * Math.sin(rollAngle));
-//      rect.setGravityY(3 * Math.cos(rollAngle));
+      rect.setGravityX(2 * x);
+      rect.setGravityY(2 * y);
    }
 
    public void draw(@NonNull Canvas canvas){
