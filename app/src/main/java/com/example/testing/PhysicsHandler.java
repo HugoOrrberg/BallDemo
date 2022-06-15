@@ -20,9 +20,9 @@ public class PhysicsHandler {
         this.boundY = boundY;
 
         figures = new LinkedList<>();
-        figures.add(new Rectangle(context, 100,10,100,100, boundX, boundY, 0.6));
-        figures.add(new Circle(context, 100,200, 200,boundX,boundY,0.75));
-
+        figures.add(new Rectangle(context, 10,10,100,100, boundX, boundY, 0.6));
+        figures.add(new Circle(context,10 ,210, 200,boundX,boundY,0.75));
+        figures.add(new Circle(context,400 ,10, 200,boundX,boundY,0.75));
         orientationVectors = new float[4];
         allFiguresInPairs = new HashSet();
         putAllFiguresInPairs();
@@ -42,16 +42,11 @@ public class PhysicsHandler {
             Figure figure1 = (Figure) pair.toArray()[0];
             Figure figure2 = (Figure) pair.toArray()[1];
             if(intersects(figure1,figure2)){
-                //Change velocity of figures
-                double tempDx = figure1.getDx();
-                double tempDy = figure1.getDy();
-                figure1.setDx(figure2.getDx()*figure1.bounce);
-                figure1.setDy(figure2.getDy()*figure1.bounce);
-                figure2.setDx(tempDx*figure2.bounce);
-                figure2.setDy(tempDy*figure2.bounce);
+                handleCollision(figure1, figure2);
             }
         }
     }
+
 
     private boolean intersects(Figure figure1, Figure figure2){
         if(figure1 instanceof Circle && figure2 instanceof Circle){
@@ -66,13 +61,17 @@ public class PhysicsHandler {
     }
 
     private boolean circleAndCircleIntersect(Circle circle1, Circle circle2){
-        return Math.sqrt(Math.pow(circle2.x - circle1.x,2) + Math.pow(circle2.y - circle1.y,2)) <=
-                circle1.getWidth()/2 + circle2.getWidth()/2;
+        return Math.sqrt(
+                Math.pow((circle2.getFigureX() + circle2.getDiameter()/2) -
+                        (circle1.getFigureX() + circle1.getDiameter()/2),2) +
+                        Math.pow((circle2.getFigureY() + circle2.getDiameter()/2) -
+                                (circle1.getFigureY() + circle1.getDiameter()/2),2))
+                <  circle1.getDiameter()/2 + circle2.getDiameter()/2;
     }
 
     private boolean circleAndRectIntersect(Circle circle, Rectangle rect){
         // temporary variables to set edges for testing
-        double cx = circle.getFigureX() + circle.getDiameter()/2 + circle.getDx();
+        double cx = circle.getMidPointX() + circle.getDx();
         double cy = circle.getFigureY() + circle.getDiameter()/2 + circle.getDy();
         double rx = rect.getFigureX() + rect.getDx();
         double ry = rect.getFigureY() + rect.getDy();
@@ -94,7 +93,7 @@ public class PhysicsHandler {
         double distance = Math.sqrt( (distX*distX) + (distY*distY) );
 
         // if the distance is less than the radius, collision!
-        if (distance <= circle.getDiameter()/2) {
+        if (distance < circle.getDiameter()/2) {
             return true;
         }
         return false;
@@ -102,6 +101,42 @@ public class PhysicsHandler {
 
     private boolean rectAndRectIntersect(Rectangle rect1, Rectangle rect2){
         return false;
+    }
+
+    private void handleCollision(Figure figure1, Figure figure2) {
+        //Change velocity of figures
+        double tempDx = figure1.getDx();
+        double tempDy = figure1.getDy();
+        figure1.setDx(figure2.getDx() * figure1.bounce);
+        figure1.setDy(figure2.getDy() * figure1.bounce);
+        figure2.setDx(tempDx * figure2.bounce);
+        figure2.setDy(tempDy * figure2.bounce);
+
+        System.out.println("before: " + figure1.getMidPointX() + "  " + figure1.getMidPointY() + "  " + figure2.getMidPointX() + "  " + figure2.getMidPointY());
+        //Make sure figures don't intersect anymore by changing positions
+        if(Math.abs(figure1.getMidPointX() - figure2.getMidPointX()) >
+                Math.abs(figure1.getMidPointY() - figure2.getMidPointY())){
+            if(figure1.getFigureX() > figure2.getFigureX()){
+                figure1.setX(figure2.getFigureX() + figure2.getFigureWidth());
+                figure2.setX(figure2.getFigureX() - figure2.gravityX);
+                figure2.setY(figure2.getFigureY() - figure2.gravityY);
+            }else{
+                figure1.setX(figure1.getFigureX() - figure1.gravityX);
+                figure1.setY(figure1.getFigureY() - figure1.gravityY);
+                figure2.setX(figure1.getFigureX() + figure1.getFigureWidth());
+            }
+        }else {
+            if(figure1.getFigureY() > figure2.getFigureY()){
+                figure1.setY(figure2.getFigureY() + figure2.getFigureHeight());
+                figure2.setY(figure2.getFigureY() - figure2.gravityY);
+                figure2.setX(figure2.getFigureX() - figure2.gravityX);
+            }else{
+                figure1.setX(figure1.getFigureX() - figure1.gravityX);
+                figure1.setY(figure1.getFigureY() - figure1.gravityY);
+                figure2.setY(figure1.getFigureY() + figure1.getFigureHeight());
+            }
+        }
+        System.out.println("after: " + figure1.getMidPointX() + "  " + figure1.getMidPointY() + "  " + figure2.getMidPointX() + "  " + figure2.getMidPointY());
     }
 
     private void putAllFiguresInPairs(){

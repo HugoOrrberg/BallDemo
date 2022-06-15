@@ -8,6 +8,7 @@ import android.view.View;
 public abstract class Figure extends View {
     protected double mass;
     protected double x, y, dx, dy;
+    protected int width, height;
     protected int boundX, boundY;
     protected double gravityX;
     protected double gravityY;
@@ -19,9 +20,21 @@ public abstract class Figure extends View {
     }
 
     /**
-     * Update the position of object
+     * Draws this rectangle
+     * @param canvas the canvas on which to draw rectangle
      */
-    public abstract void update();
+    public void onDraw(Canvas canvas){
+        figure.draw(canvas);
+    }
+
+
+    /**
+     * Updates the state of the figure
+     */
+    public void update(){
+        updatePos();
+        figure.setBounds((int) x, (int) y,(int) (width+x),(int)(height+y));
+    }
 
     /**
      * Updates the stored position of object
@@ -37,25 +50,30 @@ public abstract class Figure extends View {
     }
 
     /**
-     * Handles collision with bounds
-     * @return true if collision occured
+     * Checks if figure will collide with
+     * @return
      */
-    protected abstract boolean collideWithBounds();
-
-    /**
-     * Draws this rectangle
-     * @param canvas the canvas on which to draw rectangle
-     */
-    public void onDraw(Canvas canvas){
-        figure.draw(canvas);
+    protected boolean collideWithBounds(){
+        boolean collisionOccured = false;
+        if((x + dx) > boundX-width){
+            x = boundX - width;
+            dx = -dx*bounce;
+            collisionOccured = true;
+        }if((x + dx) < 0){
+            x = 0;
+            dx = -dx*bounce;
+            collisionOccured = true;
+        }if((y + dy) > boundY-height){
+            y = boundY-height;
+            dy = -dy*bounce;
+            collisionOccured = true;
+        }if((y + dy) < 0){
+            y = 0;
+            dy = -dy*bounce;
+            collisionOccured = true;
+        }
+        return collisionOccured;
     }
-
-    /**
-     * Checks if this figure intersect with received figure
-     * @param figure2 the figure of which intersection should be checked
-     * @return true if this figure intersects with figure2
-     */
-    public abstract boolean intersects(Figure figure2);
 
     /**
      * Checks if this figure occupies the received position
@@ -63,7 +81,10 @@ public abstract class Figure extends View {
      * @param y coordinate
      * @return true if figure occupy pos, else false
      */
-    public abstract boolean occupiesPos(int x, int y);
+    public boolean occupiesPos(int x, int y){
+        return x >= this.x && x <= this.x+width
+                && y >= this.y && y <= this.y + height;
+    }
 
     /**
      * Throw or accelerate circle in x axis
@@ -131,5 +152,21 @@ public abstract class Figure extends View {
 
     public double getMass(){
         return mass;
+    }
+
+    public int getFigureWidth(){
+        return width;
+    }
+
+    public int getFigureHeight(){
+        return height;
+    }
+
+    public double getMidPointX(){
+        return x + width/2;
+    }
+
+    public double getMidPointY(){
+        return y + height/2;
     }
 }
