@@ -29,30 +29,28 @@ public class PhysicsHandler {
     }
 
     public void update(){
-        LinkedList<Figure> collisions = collisions();
+        checkForCollisions();
         for (Figure figure: figures) {
-            if(!collisions.contains(figure)){
+//            if(!collisions.contains(figure)){
                 figure.update();
-            }
+//            }
         }
     }
 
-    private LinkedList<Figure> collisions(){
-        LinkedList<Figure> collisions = new LinkedList<>();
+    private void checkForCollisions(){
         for(HashSet<Figure> pair: allFiguresInPairs){
             Figure figure1 = (Figure) pair.toArray()[0];
             Figure figure2 = (Figure) pair.toArray()[1];
             if(intersects(figure1,figure2)){
-                collisions.addAll(pair);
-//                figure1.setDx(figure2.getDx()*figure1.bounce);
-//                figure1.setDy(figure2.getDy()*figure1.bounce);
-//                figure2.setDx(figure1.getDx()*figure2.bounce);
-//                figure2.setDy(figure1.getDy()*figure2.bounce);
-
-                //TODO - What happens when two figures intersect?
+                //Change velocity of figures
+                double tempDx = figure1.getDx();
+                double tempDy = figure1.getDy();
+                figure1.setDx(figure2.getDx()*figure1.bounce);
+                figure1.setDy(figure2.getDy()*figure1.bounce);
+                figure2.setDx(tempDx*figure2.bounce);
+                figure2.setDy(tempDy*figure2.bounce);
             }
         }
-        return collisions;
     }
 
     private boolean intersects(Figure figure1, Figure figure2){
@@ -73,21 +71,33 @@ public class PhysicsHandler {
     }
 
     private boolean circleAndRectIntersect(Circle circle, Rectangle rect){
-        double circleDistanceX =
-                Math.abs((circle.x + circle.getDiameter()/2) - (rect.x + rect.getFigureWidth()/2));
-        double circleDistanceY =
-                Math.abs((circle.y + circle.getDiameter()/2) - (rect.y + rect.getFigureHeight()/2));
+        // temporary variables to set edges for testing
+        double cx = circle.getFigureX() + circle.getDiameter()/2 + circle.getDx();
+        double cy = circle.getFigureY() + circle.getDiameter()/2 + circle.getDy();
+        double rx = rect.getFigureX() + rect.getDx();
+        double ry = rect.getFigureY() + rect.getDy();
 
-        if (circleDistanceX > (rect.getFigureWidth()/2 + circle.getDiameter())) { return false; }
-        if (circleDistanceY > (rect.getFigureHeight()/2 + circle.getDiameter())) { return false; }
+        double testX = cx;
+        double testY = cy;
 
-        if (circleDistanceX <= (rect.getFigureWidth()/2)) { return true; }
-        if (circleDistanceY <= (rect.getFigureHeight()/2)) { return true; }
+        // which edge is closest?
+        if (cx < rx)         testX = rx;      // test left edge
+        else if (cx > rx+rect.getFigureWidth())
+            testX = rx+rect.getFigureWidth();   // right edge
+        if (cy < ry)         testY = ry;      // top edge
+        else if (cy > ry+rect.getFigureHeight())
+            testY = ry+rect.getFigureHeight();   // bottom edge
 
-        double cornerDistance_sq = Math.pow((circleDistanceX - rect.getFigureWidth()/2), 2) +
-                Math.pow((circleDistanceY - rect.getFigureHeight()/2),2);
+        // get distance from closest edges
+        double distX = cx-testX;
+        double distY = cy-testY;
+        double distance = Math.sqrt( (distX*distX) + (distY*distY) );
 
-        return (cornerDistance_sq <= Math.pow(circle.getDiameter()/2, 2));
+        // if the distance is less than the radius, collision!
+        if (distance <= circle.getDiameter()/2) {
+            return true;
+        }
+        return false;
     }
 
     private boolean rectAndRectIntersect(Rectangle rect1, Rectangle rect2){

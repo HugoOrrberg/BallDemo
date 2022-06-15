@@ -97,6 +97,14 @@ public abstract class Figure extends View {
         this.gravityY = gravityY;
     }
 
+    public double getFigureX(){
+        return x;
+    }
+
+    public double getFigureY(){
+        return y;
+    }
+
     public double getDx(){
         return dx;
     }
