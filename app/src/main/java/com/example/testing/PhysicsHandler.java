@@ -112,7 +112,7 @@ public class PhysicsHandler {
         figure2.setDx(tempDx * figure2.bounce);
         figure2.setDy(tempDy * figure2.bounce);
 
-        System.out.println("before: " + figure1.getMidPointX() + "  " + figure1.getMidPointY() + "  " + figure2.getMidPointX() + "  " + figure2.getMidPointY());
+//        System.out.println("before: " + figure1.getMidPointX() + "  " + figure1.getMidPointY() + "  " + figure2.getMidPointX() + "  " + figure2.getMidPointY());
         //Make sure figures don't intersect anymore by changing positions
         if(Math.abs(figure1.getMidPointX() - figure2.getMidPointX()) >
                 Math.abs(figure1.getMidPointY() - figure2.getMidPointY())){
@@ -136,7 +136,7 @@ public class PhysicsHandler {
                 figure2.setY(figure1.getFigureY() + figure1.getFigureHeight());
             }
         }
-        System.out.println("after: " + figure1.getMidPointX() + "  " + figure1.getMidPointY() + "  " + figure2.getMidPointX() + "  " + figure2.getMidPointY());
+//        System.out.println("after: " + figure1.getMidPointX() + "  " + figure1.getMidPointY() + "  " + figure2.getMidPointX() + "  " + figure2.getMidPointY());
     }
 
     private void putAllFiguresInPairs(){
